@@ -25,11 +25,3 @@ class OptionViewSet(viewsets.GenericViewSet,
             queryset = queryset.filter(menu__isnull=False)
 
         return queryset.order_by('-description').distinct()
-
-    # def list(self, request):
-    #     """List options"""
-    #     print("LIST OPTIONS")
-    #     print(request.user.is_staff)
-    #     queryset = self.queryset
-
-    #     return queryset
