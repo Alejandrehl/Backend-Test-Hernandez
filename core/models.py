@@ -32,7 +32,7 @@ class Option(models.Model):
 
 class Menu(models.Model):
     """Menu object"""
-    name = models.CharField(default="Today's menu")
+    name = models.CharField(default="Today's menu", max_length=255)
     date = models.DateField()
     createdAt = models.DateTimeField(auto_now=False)
     options = models.ManyToManyField(Option)
