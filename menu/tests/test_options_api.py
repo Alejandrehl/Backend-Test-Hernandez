@@ -83,6 +83,9 @@ class PrivateOptionsApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_option_duplicated(self):
+        """Test creating a new option with duplicated description"""
+
     def test_retrieve_options_assigned_to_menus(self):
         """Test filtering options by those assigned to menus"""
         option1 = Option.objects.create(
