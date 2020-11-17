@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Option(models.Model):
     """Option to be used for a menu"""
     description = models.TextField()
-    createdAt = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.description
@@ -34,7 +34,7 @@ class Menu(models.Model):
     """Menu object"""
     name = models.CharField(default="Today's menu", max_length=255)
     date = models.DateField()
-    createdAt = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     options = models.ManyToManyField(Option)
 
     def __str__(self):
@@ -52,4 +52,4 @@ class Order(models.Model):
         on_delete=models.CASCADE
     )
     observation = models.CharField(max_length=255)
-    createdAt = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
