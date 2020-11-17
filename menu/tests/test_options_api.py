@@ -99,9 +99,6 @@ class PrivateOptionsApiTests(TestCase):
 
         serializer1 = OptionSerializer(option1)
         serializer2 = OptionSerializer(option2)
-        print(serializer1.data)
-        print(serializer2.data)
-
         self.assertIn(serializer1.data, res.data)
         self.assertNotIn(serializer2.data, res.data)
 
