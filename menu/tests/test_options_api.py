@@ -11,7 +11,7 @@ from menu.serializers import OptionSerializer
 
 import datetime
 
-OPTIONS_URL = reverse('recipe:option-list')
+OPTIONS_URL = reverse('menu:option-list')
 
 
 class PublicOptionsApiTests(TestCase):
@@ -71,7 +71,7 @@ class PrivateOptionsApiTests(TestCase):
         self.client.post(OPTIONS_URL, payload)
 
         exists = Option.objects.filter(
-            name=payload['description']
+            description=payload['description']
         ).exists()
 
         self.assertTrue(exists)
@@ -86,9 +86,10 @@ class PrivateOptionsApiTests(TestCase):
     def test_retrieve_options_assigned_to_menus(self):
         """Test filtering options by those assigned to menus"""
         option1 = Option.objects.create(
-            description='Premium chicken Salad and Dessert.')
+            description='Premium chicken Salad and Dessert')
         option2 = Option.objects.create(
             description='Chicken Nugget Rice, Salad and Dessert')
+
         menu = Menu.objects.create(
             date=datetime.date.fromisoformat("2020-12-01")
         )
@@ -98,6 +99,9 @@ class PrivateOptionsApiTests(TestCase):
 
         serializer1 = OptionSerializer(option1)
         serializer2 = OptionSerializer(option2)
+        print(serializer1.data)
+        print(serializer2.data)
+
         self.assertIn(serializer1.data, res.data)
         self.assertNotIn(serializer2.data, res.data)
 
