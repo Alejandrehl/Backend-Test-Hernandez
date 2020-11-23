@@ -104,7 +104,7 @@ class PrivateMenuApiTest(TestCase):
         }
         res = self.client.post(MENUS_URL, payload)
 
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_create_menu_with_options(self):
         """Test creating a menu with options"""
