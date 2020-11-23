@@ -5,6 +5,7 @@
 # Solo puede haber un menu diario
 # Todos los usuarios o no usuarios pueden ver el menú del día
 
+from datetime import date
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
@@ -102,3 +103,32 @@ class PrivateMenuApiTest(TestCase):
 
         serializer = MenuSerializer(menu)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_menu(self):
+        """Test creating menu without options"""
+        payload = {
+            'name': "Today's Menu",
+            'date': datetime.date.today(),
+        }
+        res = self.client.post(MENUS_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_menu_with_options(self):
+        """Test creating a menu with options"""
+        option1 = sample_option()
+        option2 = sample_option()
+        payload = {
+            'name': "Today's Menu",
+            'date': datetime.date.today(),
+            'options': [option1.id, option2.id]
+        }
+
+        res = self.client.post(MENUS_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        menu = Menu.objects.get(id=res.data['id'])
+        options = menu.options.all()
+        self.assertEqual(options.count(), 2)
+        self.assertIn(option1, options)
+        self.assertIn(option2, options)
