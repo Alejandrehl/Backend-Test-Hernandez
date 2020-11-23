@@ -5,8 +5,6 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import Option, Menu
 from . import serializers
 
-from http import HTTPStatus
-
 
 class OptionViewSet(viewsets.GenericViewSet,
                     mixins.ListModelMixin,
