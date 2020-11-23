@@ -47,7 +47,7 @@ class Menu(models.Model):
     name = models.CharField(default="Today's menu", max_length=255)
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
-    options = models.ManyToManyField(Option)
+    options = models.ManyToManyField('Option')
 
     def __str__(self):
         return self.name

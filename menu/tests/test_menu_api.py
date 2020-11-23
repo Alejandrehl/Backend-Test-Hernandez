@@ -12,7 +12,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Menu, Option
+from core.models import Menu, Option, Order
 
 from menu.serializers import MenuSerializer
 
@@ -21,14 +21,48 @@ import datetime
 MENUS_URL = reverse('menu:menu-list')
 
 
-class PublicMenusApiTests(TestCase):
+def sample_menu(**params):
+    """Create and return a sample menu"""
+    option1 = Option.objects.create(
+        description='Corn pie, Salad and Dessert')
+    option2 = Option.objects.create(
+        description='Chicken Nugget Rice, Salad and Dessert')
+
+    defaults = {
+        'name': "Today's Menu",
+        'date': datetime.date.today(),
+    }
+    defaults.update(params)
+
+    menu = Menu.objects.create(**defaults)
+    menu.options.add(option1)
+    menu.options.add(option2)
+    return menu
+
+
+def sample_option(description='Chicken Nugget Rice, Salad and Dessert'):
+    """Create and return a sample option"""
+    return Option.objects.create(description=description)
+
+
+def sample_order(user, menu):
+    """Create and return a sample order"""
+    return Order.objects.create(user, menu, observation="No tomatoes in the salad")
+
+
+def detail_url(menu_id):
+    """Return menu detail URL"""
+    return reverse('menu:menu-detail', args=[menu_id])
+
+
+class PublicMenuApiTests(TestCase):
     """Test the publicity available options API"""
 
     def setUp(self) -> None:
         self.client = APIClient()
 
-    def test_retrieve_daily_menu(self):
-        """Test retrieving daily menus"""
+    def test_retrieve_menus(self):
+        """Test retrieving menus"""
         option1 = Option.objects.create(
             description='Corn pie, Salad and Dessert')
         option2 = Option.objects.create(
@@ -43,4 +77,28 @@ class PublicMenusApiTests(TestCase):
         menus = Menu.objects.all().order_by('-date')
         serializer = MenuSerializer(menus, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+
+class PrivateMenuApiTest(TestCase):
+    """Test authenticated menu API access"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'nora@cornershop.com',
+            'testpass'
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_view_menu_detail(self):
+        """Test viewing a menu detail"""
+        menu = sample_menu()
+        menu.options.add(sample_option())
+        menu.options.add(sample_option())
+
+        url = detail_url(menu.id)
+        res = self.client.get(url)
+
+        serializer = MenuSerializer(menu)
         self.assertEqual(res.data, serializer.data)
