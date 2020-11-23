@@ -1,10 +1,3 @@
-# Requerimientos
-# Solo Nora puede crear, ediatar y eliminar menus (STAFF USER)
-# Para crear un menu primero debe agregar opciones
-# Un Menu se debe componen de hasta 4 opciones diarias
-# Solo puede haber un menu diario
-# Todos los usuarios o no usuarios pueden ver el menú del día
-
 from datetime import date
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -132,3 +125,38 @@ class PrivateMenuApiTest(TestCase):
         self.assertEqual(options.count(), 2)
         self.assertIn(option1, options)
         self.assertIn(option2, options)
+
+    def test_partial_update_menu(self):
+        """Test updating a menu with patch"""
+        menu = sample_menu()
+        menu.options.add(sample_option())
+        new_option = sample_option()
+
+        payload = {'name': 'Vegan Menu', 'options': [new_option.id]}
+        url = detail_url(menu.id)
+        self.client.patch(url, payload)
+
+        menu.refresh_from_db()
+        self.assertEqual(menu.name, payload['name'])
+        options = menu.options.all()
+        self.assertEqual(len(options), 1)
+        self.assertIn(new_option, options)
+
+    def test_full_update_menu(self):
+        """Test updating a menu with put"""
+        menu = sample_menu()
+        menu.options.add(sample_option())
+
+        payload = {
+            'name': 'Chilean Menu',
+            'date': datetime.date.today(),
+            'options': []
+        }
+        url = detail_url(menu.id)
+        self.client.put(url, payload)
+
+        menu.refresh_from_db()
+        self.assertEqual(menu.name, payload['name'])
+        self.assertEqual(menu.date, payload['date'])
+        options = menu.options.all()
+        self.assertEqual(len(options), 0)
