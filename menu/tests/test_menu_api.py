@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 
 from core.models import Menu, Option, Order
 
-from menu.serializers import MenuSerializer
+from menu.serializers import MenuDetailSerializer, MenuSerializer
 
 import datetime
 
@@ -72,6 +72,18 @@ class PublicMenuApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
+    def test_view_menu_detail(self):
+        """Test viewing a menu detail"""
+        menu = sample_menu()
+        menu.options.add(sample_option())
+        menu.options.add(sample_option())
+
+        url = detail_url(menu.id)
+        res = self.client.get(url)
+
+        serializer = MenuDetailSerializer(menu)
+        self.assertEqual(res.data, serializer.data)
+
 
 class PrivateMenuApiTest(TestCase):
     """Test authenticated menu API access"""
@@ -83,18 +95,6 @@ class PrivateMenuApiTest(TestCase):
             'testpass'
         )
         self.client.force_authenticate(self.user)
-
-    def test_view_menu_detail(self):
-        """Test viewing a menu detail"""
-        menu = sample_menu()
-        menu.options.add(sample_option())
-        menu.options.add(sample_option())
-
-        url = detail_url(menu.id)
-        res = self.client.get(url)
-
-        serializer = MenuSerializer(menu)
-        self.assertEqual(res.data, serializer.data)
 
     def test_create_basic_menu(self):
         """Test creating menu without options"""
